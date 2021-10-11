@@ -6,9 +6,11 @@ import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import com.example.placebook.R
 import com.example.placebook.adapter.BookemarkInfoWindowAdapter
+import com.example.placebook.viewmodel.MapsViewModel
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
@@ -36,6 +38,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val TAG = "MapsActivity"
     }
 
+
+    private val viewModel by viewModels<MapsViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -59,18 +64,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         getCurrentLocation()
+        setUpMapsListener()
+    }
+
+    private fun setUpMapsListener(){
+        mMap.setInfoWindowAdapter(BookemarkInfoWindowAdapter(this))
         mMap.setOnPoiClickListener {
             //Toast.makeText(this , it.name , Toast.LENGTH_SHORT).show()
-            displayPoi(it)
-            mMap.setInfoWindowAdapter(BookemarkInfoWindowAdapter(this))
+            displayPoi(it)}
 
-        }
-
-
-        /*// Add a marker in Sydney and move the camera
-        val sydney = LatLng(-34.0, 151.0)
-        mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))*/
     }
 
     private fun setLocationClient() {
@@ -218,6 +220,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+
+    class PlaceHolder(val place: Place? = null ,  val bitmap: Bitmap? =null )
+
     private fun displayPoiDisplayStep(place: Place, photo: Bitmap?)
     {
         val marker = mMap.addMarker(MarkerOptions()
@@ -225,7 +230,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             .title(place.name)
             .snippet(place.phoneNumber)
         )
-        marker?.tag = photo
+       // marker?.tag = photo
+        marker?.tag = PlaceHolder(place , photo)
      /*   val iconPhoto = if (photo == null) {
             BitmapDescriptorFactory.defaultMarker()
         } else {
@@ -233,6 +239,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }*/
 
     }
+
+    
 
 
 
