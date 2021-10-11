@@ -1,6 +1,7 @@
 package com.example.placebook.adapter
 
 import android.app.Activity
+import android.graphics.Bitmap
 import android.view.View
 import com.example.placebook.databinding.ContentBookmarkInfoBinding
 import com.google.android.gms.maps.GoogleMap
@@ -13,12 +14,14 @@ class BookemarkInfoWindowAdapter(context : Activity) : GoogleMap.InfoWindowAdapt
 
 
     override fun getInfoWindow(p0: Marker): View? {
-        TODO("Not yet implemented")
+        return null
     }
 
     override fun getInfoContents(marker: Marker): View? {
         binding.placeTitle.text = marker.title ?: ""
         binding.placeNumber.text = marker.snippet ?: ""
+        val imageView = binding.placePhoto
+        imageView.setImageBitmap((marker.tag as Bitmap))
         return binding.root
     }
 }

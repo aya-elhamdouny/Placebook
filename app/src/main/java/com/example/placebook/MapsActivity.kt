@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.example.placebook.adapter.BookemarkInfoWindowAdapter
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
@@ -62,6 +63,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mMap.setOnPoiClickListener {
             //Toast.makeText(this , it.name , Toast.LENGTH_SHORT).show()
             displayPoi(it)
+            mMap.setInfoWindowAdapter(BookemarkInfoWindowAdapter(this))
 
         }
 
@@ -219,18 +221,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun displayPoiDisplayStep(place: Place, photo: Bitmap?)
     {
-        val iconPhoto = if (photo == null) {
-            BitmapDescriptorFactory.defaultMarker()
-        } else {
-            BitmapDescriptorFactory.fromBitmap(photo)
-        }
-        mMap.addMarker(
-            MarkerOptions()
+        val marker = mMap.addMarker(MarkerOptions()
             .position(place.latLng as LatLng)
-            .icon(iconPhoto)
             .title(place.name)
             .snippet(place.phoneNumber)
         )
+        marker?.tag = photo
+     /*   val iconPhoto = if (photo == null) {
+            BitmapDescriptorFactory.defaultMarker()
+        } else {
+            BitmapDescriptorFactory.fromBitmap(photo)
+        }*/
+
     }
 
 
