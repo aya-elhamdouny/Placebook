@@ -220,13 +220,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 .title(place.name)
                 .snippet(place.phoneNumber)
         )
-        // marker?.tag = photo
         marker?.tag = PlaceHolder(place, photo)
-        /*   val iconPhoto = if (photo == null) {
-               BitmapDescriptorFactory.defaultMarker()
-           } else {
-               BitmapDescriptorFactory.fromBitmap(photo)
-           }*/
+        marker?.showInfoWindow()
+
 
     }
 

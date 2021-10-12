@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.view.View
 import com.example.placebook.databinding.ContentBookmarkInfoBinding
 import com.example.placebook.ui.MapsActivity
+import com.example.placebook.viewmodel.MapsViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
 
@@ -22,8 +23,21 @@ class BookemarkInfoWindowAdapter(context : Activity) : GoogleMap.InfoWindowAdapt
         binding.placeTitle.text = marker.title ?: ""
         binding.placeNumber.text = marker.snippet ?: ""
         val imageView = binding.placePhoto
-        imageView.setImageBitmap((marker.tag as MapsActivity.PlaceHolder).bitmap)
-        // imageView.setImageBitmap((marker.tag as Bitmap))
+
+        when(marker.tag){
+            is MapsActivity.PlaceHolder -> {
+                imageView.setImageBitmap((marker.tag as MapsActivity.PlaceHolder).bitmap)
+            }
+
+            is MapsViewModel.BookemarkerView ->{
+                val bookmarkView = marker.tag as
+                        MapsViewModel.BookemarkerView
+                //imageView.setImageBitmap((bookmarkView)
+
+
+            }
+
+        }
         return binding.root
     }
 }
