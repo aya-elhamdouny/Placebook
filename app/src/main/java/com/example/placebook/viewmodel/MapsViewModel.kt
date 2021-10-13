@@ -1,6 +1,7 @@
 package com.example.placebook.viewmodel
 
 import android.app.Application
+import android.content.Context
 import android.graphics.Bitmap
 import android.service.autofill.Transformation
 import android.util.Log
@@ -10,6 +11,7 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.example.placebook.model.Bookmark
 import com.example.placebook.repository.BookmarkRepo
+import com.example.placebook.utils.ImageUtil
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.libraries.places.api.model.Place
 
@@ -37,7 +39,9 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
     private fun bookMarkToMarkerView(bookmark: Bookmark) :BookemarkerView {
      return BookemarkerView(
             bookmark.id,
-            LatLng(bookmark.latitude, bookmark.longitude)
+            LatLng(bookmark.latitude, bookmark.longitude),
+            bookmark.name,
+            bookmark.phone
         )
     }
 
@@ -51,8 +55,15 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
 
     data class BookemarkerView(
         var id : Long? = null,
-        var location : LatLng = LatLng(0.0,0.0)
-    )
+        var location : LatLng = LatLng(0.0,0.0),
+        var name: String = "",
+        var phone: String = ""
+    ) {
+        fun getImage(context: Context) = id?.let {
+            ImageUtil.loadBitmapFromFile(context,
+                Bookmark.generateImageFilename(it))
+        }
+    }
 
     fun getBookmarkMarkerViews() :
             LiveData<List<BookemarkerView>>? {

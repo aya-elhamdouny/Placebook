@@ -9,7 +9,7 @@ import com.example.placebook.viewmodel.MapsViewModel
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.Marker
 
-class BookemarkInfoWindowAdapter(context : Activity) : GoogleMap.InfoWindowAdapter {
+class BookemarkInfoWindowAdapter(val context : Activity) : GoogleMap.InfoWindowAdapter {
 
 
     val binding = ContentBookmarkInfoBinding.inflate(context.layoutInflater)
@@ -32,7 +32,7 @@ class BookemarkInfoWindowAdapter(context : Activity) : GoogleMap.InfoWindowAdapt
             is MapsViewModel.BookemarkerView ->{
                 val bookmarkView = marker.tag as
                         MapsViewModel.BookemarkerView
-                //imageView.setImageBitmap((bookmarkView)
+                imageView.setImageBitmap(bookmarkView.getImage(context))
 
 
             }

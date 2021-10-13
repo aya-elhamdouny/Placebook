@@ -1,6 +1,7 @@
 package com.example.placebook.ui
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
@@ -37,6 +38,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     companion object {
         private const val REQUEST_LOCATION = 1
         private const val TAG = "MapsActivity"
+         const val EXTRA_BOOKMARK_ID = "BOOKMARK_ID"
     }
 
 
@@ -45,7 +47,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -227,18 +228,35 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun handleInfoWindowClicked(marker: Marker) {
-        val placeHolder = (marker.tag as PlaceHolder)
-        if (placeHolder.place != null) {
+        when(marker.tag){
+            is PlaceHolder ->{
+                val placeHolder = (marker.tag as PlaceHolder)
+                if (placeHolder.place != null && placeHolder.bitmap != null) {
 
-            GlobalScope.launch {
-                placeHolder.bitmap?.let {
+                    GlobalScope.launch {
+                        placeHolder.bitmap?.let {
+                            viewModel.addBookmarkFromPlace(placeHolder.place, it)
+                        }
+                    }
 
-                    viewModel.addBookmarkFromPlace(placeHolder.place, it)
+                    marker.remove()
                 }
             }
 
+         is MapsViewModel.BookemarkerView ->{
+             val bookmarkview = (marker.tag as MapsViewModel.BookemarkerView)
+             marker.hideInfoWindow()
+             bookmarkview.id?.let {
+                 startBookDetail(it)
+             }
+         }
+
         }
-        marker.remove()
+
+
+
+
+
 
     }
 
@@ -249,6 +267,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         val marker = mMap.addMarker(
             MarkerOptions()
                 .position(bookmark.location)
+                .title(bookmark.name)
+                .snippet(bookmark.phone)
                 .icon(
                     BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_AZURE
@@ -276,6 +296,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     displayAllBookmarks(it)
                 }
             })
+    }
+
+
+    private fun startBookDetail(bookmarkId : Long){
+        val intent = Intent(this, BookmarkDetail::class.java)
+        intent.putExtra(EXTRA_BOOKMARK_ID ,bookmarkId )
+        startActivity(intent)
     }
 
 
