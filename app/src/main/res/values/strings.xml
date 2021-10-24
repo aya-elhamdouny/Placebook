@@ -9,4 +9,7 @@
     <string name="notes">Notes</string>
     <string name="enter_notes">Enter notes</string>
     <string name="category">category</string>
+    <string name="openDrawble">Open Drawble</string>
+    <string name="closeDrawble">Close Drawble</string>
+
 </resources>

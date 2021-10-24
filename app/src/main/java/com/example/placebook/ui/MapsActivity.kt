@@ -8,11 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.placebook.R
 import com.example.placebook.adapter.BookemarkInfoWindowAdapter
+import com.example.placebook.adapter.BookmarkAdapter
 import com.example.placebook.databinding.ActivityMapsBinding
-import com.example.placebook.model.Bookmark
 import com.example.placebook.viewmodel.MapsViewModel
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.*
@@ -36,6 +38,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private var locationRequest: LocationRequest? = null
     private lateinit var placesClient: PlacesClient
     private lateinit var biding : ActivityMapsBinding
+    private lateinit var  bookmarkAdapter: BookmarkAdapter
 
     companion object {
         private const val REQUEST_LOCATION = 1
@@ -55,11 +58,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
         setLocationClient()
         setupToolbar()
+        setupNavigationDrawble()
         setupPlacesClient()
     }
 
     private fun setupToolbar(){
+        val toggle = ActionBarDrawerToggle(
+            this, biding.drawerLayout ,
+            biding.mainMapView.toolbar, R.string.openDrawble,
+            R.string.closeDrawble)
+        toggle.syncState()
         setSupportActionBar(biding.mainMapView.toolbar)
+    }
+
+    private fun setupNavigationDrawble(){
+        val layoutManager = LinearLayoutManager(this)
+        biding.drawerViewMaps.bookmarkRv.layoutManager = layoutManager
+        bookmarkAdapter = BookmarkAdapter(null , this)
+        biding.drawerViewMaps.bookmarkRv.adapter = bookmarkAdapter
+
     }
 
 
@@ -302,6 +319,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 mMap.clear()
                 it?.let {
                     displayAllBookmarks(it)
+                    bookmarkAdapter.setBookmarkData(it)
                 }
             })
     }

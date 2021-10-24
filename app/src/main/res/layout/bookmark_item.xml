@@ -9,7 +9,7 @@
   <data>
       <variable
           name="bookmarkData"
-          type="com.example.placebook.viewmodel.BookmarkDetailViewModel.BookemarkerView" />
+          type="com.example.placebook.viewmodel.MapsViewModel.BookemarkerView" />
   </data>
 
 
