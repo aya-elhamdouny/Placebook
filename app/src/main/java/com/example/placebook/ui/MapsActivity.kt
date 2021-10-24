@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.core.app.ActivityCompat
 import com.example.placebook.R
 import com.example.placebook.adapter.BookemarkInfoWindowAdapter
+import com.example.placebook.databinding.ActivityMapsBinding
 import com.example.placebook.model.Bookmark
 import com.example.placebook.viewmodel.MapsViewModel
 import com.google.android.gms.common.api.ApiException
@@ -34,6 +35,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var locationRequest: LocationRequest? = null
     private lateinit var placesClient: PlacesClient
+    private lateinit var biding : ActivityMapsBinding
 
     companion object {
         private const val REQUEST_LOCATION = 1
@@ -46,12 +48,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_maps)
+        biding = ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(biding.root)
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
         setLocationClient()
+        setupToolbar()
         setupPlacesClient()
+    }
+
+    private fun setupToolbar(){
+        setSupportActionBar(biding.mainMapView.toolbar)
     }
 
 
