@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -37,8 +38,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var locationRequest: LocationRequest? = null
     private lateinit var placesClient: PlacesClient
-    private lateinit var biding : ActivityMapsBinding
+    private lateinit var binding : ActivityMapsBinding
     private lateinit var  bookmarkAdapter: BookmarkAdapter
+    private var markers = HashMap<Long , Marker>()
 
     companion object {
         private const val REQUEST_LOCATION = 1
@@ -51,8 +53,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        biding = ActivityMapsBinding.inflate(layoutInflater)
-        setContentView(biding.root)
+        binding = ActivityMapsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         val mapFragment = supportFragmentManager
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -64,18 +66,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupToolbar(){
         val toggle = ActionBarDrawerToggle(
-            this, biding.drawerLayout ,
-            biding.mainMapView.toolbar, R.string.openDrawble,
+            this, binding.drawerLayout ,
+            binding.mainMapView.toolbar, R.string.openDrawble,
             R.string.closeDrawble)
         toggle.syncState()
-        setSupportActionBar(biding.mainMapView.toolbar)
+        setSupportActionBar(binding.mainMapView.toolbar)
     }
 
     private fun setupNavigationDrawble(){
         val layoutManager = LinearLayoutManager(this)
-        biding.drawerViewMaps.bookmarkRv.layoutManager = layoutManager
+        binding.drawerViewMaps.bookmarkRv.layoutManager = layoutManager
         bookmarkAdapter = BookmarkAdapter(null , this)
-        biding.drawerViewMaps.bookmarkRv.adapter = bookmarkAdapter
+        binding.drawerViewMaps.bookmarkRv.adapter = bookmarkAdapter
 
     }
 
@@ -277,12 +279,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
          }
 
         }
-
-
-
-
-
-
     }
 
 
@@ -301,6 +297,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                 )
                 .alpha(0.8f)
         )
+        bookmark.id?.let {
+            markers.put(it , marker)
+        }
         marker.tag = bookmark
         return marker
     }
@@ -317,6 +316,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             this,
             {
                 mMap.clear()
+                markers.clear()
                 it?.let {
                     displayAllBookmarks(it)
                     bookmarkAdapter.setBookmarkData(it)
@@ -331,5 +331,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         startActivity(intent)
     }
 
+
+
+
+    //zoom in specific location
+    private fun updateMapToLocation(location : Location){
+        val latLng = LatLng(location.latitude , location.longitude)
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng , 16.0f))
+    }
+    fun moveToBookmark(bookmark: MapsViewModel.BookemarkerView){
+        binding.drawerLayout.closeDrawer(binding.drawerViewMaps.drwableView)
+
+        val marker = markers[bookmark.id]
+        marker?.showInfoWindow()
+         val location = Location("")
+        location.latitude = bookmark.location.latitude
+        location.longitude = bookmark.location.longitude
+        updateMapToLocation(location)
+    }
 
 }
