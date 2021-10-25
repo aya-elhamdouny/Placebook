@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.example.placebook.model.Bookmark
 import com.example.placebook.repository.BookmarkRepo
+import com.example.placebook.ui.BookmarkDetail
 import com.example.placebook.utils.ImageUtil
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.GlobalScope
@@ -22,10 +23,17 @@ class BookmarkDetailViewModel(application: Application) : AndroidViewModel(appli
 
 
     private fun mapBookmarkToBookmarkView(bookmarkId: Long) {
+
+
+
+
+
         val bookmark = bookmarkrepo.getLiveBookmark(bookmarkId)
         bookmarkdetail = Transformations.map(bookmark)
         { repoBookmark ->
-            bookMarkToMarkerView(repoBookmark)
+            repoBookmark?.let { repoBookmark ->
+                bookMarkToMarkerView(repoBookmark)
+            }
         }
     }
 
@@ -95,8 +103,23 @@ class BookmarkDetailViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    fun deleteBookmark(bookmarkDetailsView: BookemarkerView) {
+        GlobalScope.launch {
+            val bookmark = bookmarkDetailsView.id?.let {
+                bookmarkrepo.getBookmark(it)
+            }
+            bookmark?.let {
+                bookmarkrepo.deleteBookmark(it)
+
+            }
+        }
+    }
 
 
 
 
-}
+
+
+
+
+            }
