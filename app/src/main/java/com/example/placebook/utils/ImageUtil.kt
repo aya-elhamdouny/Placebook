@@ -3,9 +3,12 @@ package com.example.placebook.utils
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Environment
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.*
 
 object ImageUtil {
 
@@ -35,4 +38,18 @@ object ImageUtil {
         val filePath = File(context.filesDir, filename).absolutePath
         return BitmapFactory.decodeFile(filePath)
     }
+
+
+    fun createUniqueImageName(context: Context) : File {
+        val timeStamp = SimpleDateFormat("yyyyMMDDHHmmss").format(Date())
+        val fiename = "PlaceBook_" + timeStamp +"_"
+        val direction = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fiename , ".jpg" , direction)
+    }
+
+
+
+
+
+
 }

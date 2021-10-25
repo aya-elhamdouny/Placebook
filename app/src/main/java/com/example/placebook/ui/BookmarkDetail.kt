@@ -1,23 +1,32 @@
 package com.example.placebook.ui
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import com.example.placebook.R
 import com.example.placebook.databinding.ActivityBookmarkDetailBinding
+import com.example.placebook.utils.ImageUtil
 import com.example.placebook.viewmodel.BookmarkDetailViewModel
+import java.io.File
 
 class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOptionDialogListener{
 
     private lateinit var binding  : ActivityBookmarkDetailBinding
     private val bookmarkViewmodel by viewModels<BookmarkDetailViewModel>()
-
     private var bookmarkDetail : BookmarkDetailViewModel.BookemarkerView? = null
+    private var photoFile  :File? = null
 
+    companion object{
+        private const val REQUEST_PHOTO_CAPTURE = 1
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -91,6 +100,37 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
     override fun onCaptureClick() {
         Toast.makeText(this, "Camera Capture",
             Toast.LENGTH_SHORT).show()
+
+
+        photoFile =null
+        try {
+            photoFile = ImageUtil.createUniqueImageName(this)
+                    }catch (ex : java.io.IOException){
+                        return
+                    }
+        photoFile?.let {
+            val photouri = FileProvider.getUriForFile(this,
+            "com.example.placebook.fileprovider", it)
+
+            val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+            captureIntent.putExtra(android.provider.MediaStore.EXTRA_OUTPUT , photouri)
+
+
+            val intentActivity = packageManager.queryIntentActivities(
+                captureIntent , PackageManager.MATCH_DEFAULT_ONLY)
+
+            intentActivity.map { it.activityInfo.packageName }
+                .forEach{
+                    grantUriPermission(it , photouri , Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                }
+            startActivityForResult(captureIntent, REQUEST_PHOTO_CAPTURE)
+
+        }
+
+
+
+
+
     }
 
     override fun onPickClick() {
