@@ -2,6 +2,7 @@ package com.example.placebook.ui
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
@@ -127,10 +128,7 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
 
         }
 
-
-
-
-
+   
     }
 
     override fun onPickClick() {
@@ -142,4 +140,43 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
         val newFragment = PhotoOptionDialogFragment.newInstance(this)
         newFragment?.show(supportFragmentManager, "photoOptionDialog")
     }
+
+
+    private fun updateImage(image: Bitmap) {
+        bookmarkDetail?.let {
+            binding.imageViewPlace.setImageBitmap(image)
+            it.setImage(this, image)
+        }
+    }
+    private fun getImageWithPath(filePath: String) =
+        ImageUtil.decodeFileToSize(
+            filePath,
+            resources.getDimensionPixelSize(R.dimen.default_image_width),
+            resources.getDimensionPixelSize(R.dimen.default_image_hight)
+        )
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int,
+                                  data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == android.app.Activity.RESULT_OK) {
+            when (requestCode) {
+                REQUEST_PHOTO_CAPTURE -> {
+
+                    val photoFile = photoFile ?: return
+                    val uri = FileProvider.getUriForFile(this,
+                        "com.example.placebook.fileprovider",
+                        photoFile)
+                    revokeUriPermission(uri,
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+
+                    val image = getImageWithPath(photoFile.absolutePath)
+                    val bitmap = ImageUtil.rotateImageIfRequired(this,
+                        image , uri)
+                    updateImage(bitmap)
+                }
+            }
+        }
+    }
+
+
 }

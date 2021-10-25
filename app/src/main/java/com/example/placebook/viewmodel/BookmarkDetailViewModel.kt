@@ -2,6 +2,7 @@ package com.example.placebook.viewmodel
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import android.location.Address
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -55,9 +56,22 @@ class BookmarkDetailViewModel(application: Application) : AndroidViewModel(appli
         var notes : String =""
     ) {
         fun getImage(context: Context) = id?.let {
-            ImageUtil.loadBitmapFromFile(context,
-                Bookmark.generateImageFilename(it))
-        }
+            ImageUtil.loadBitmapFromFile(
+                context,
+                Bookmark.generateImageFilename(it)
+            ) }
+
+        fun setImage(context: Context, image: Bitmap) {
+            id?.let {
+                ImageUtil.saveBitmapToFile(
+                    context, image,
+                    Bookmark.generateImageFilename(it)
+                ) }}
+
+
+
+
+
     }
     private fun bookmarkViewToBookmark(bookmarkView :  BookemarkerView): Bookmark? {
         val bookmark = bookmarkView.id?.let {
@@ -80,5 +94,9 @@ class BookmarkDetailViewModel(application: Application) : AndroidViewModel(appli
             bookmark?.let { bookmarkrepo.updateBookmark(it) }
         }
     }
+
+
+
+
 
 }
