@@ -52,16 +52,22 @@ class BookmarkDetailViewModel(application: Application) : AndroidViewModel(appli
             bookmark.name,
             bookmark.phone,
             bookmark.address,
-            bookmark.notes
+            bookmark.notes,
+            bookmark.longitude,
+            bookmark.latitude,
+            bookmark.placeId
         )
     }
 
     data class BookemarkerView(
-        var id : Long? = null,
+        var id: Long? = null,
         var name: String = "",
         var phone: String = "",
         var address: String = "",
-        var notes : String =""
+        var notes: String = "",
+        var longitude: Double = 0.0,
+        var latitude: Double = 0.0,
+        var placeId: String? = null
     ) {
         fun getImage(context: Context) = id?.let {
             ImageUtil.loadBitmapFromFile(

@@ -1,5 +1,6 @@
 package com.example.placebook.ui
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -17,6 +18,7 @@ import com.example.placebook.databinding.ActivityBookmarkDetailBinding
 import com.example.placebook.utils.ImageUtil
 import com.example.placebook.viewmodel.BookmarkDetailViewModel
 import java.io.File
+import java.net.URLEncoder
 
 class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOptionDialogListener{
 
@@ -35,6 +37,7 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
         binding = DataBindingUtil.setContentView(this, R.layout.activity_bookmark_detail)
         setupToolbar()
         getIntentData()
+        setupFab()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?) : Boolean {
@@ -93,6 +96,10 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
         when (item.itemId) {
             R.id.save_btn -> {
                 saveChanges()
+                true
+            }
+            R.id.action_delete -> {
+                deleteBookmark()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -178,5 +185,46 @@ class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOpti
         }
     }
 
+    private fun deleteBookmark()
+    {
+        val bookmarkView = bookmarkDetail?: return
+        AlertDialog.Builder(this)
+            .setMessage("Delete?")
+            .setPositiveButton("Ok") { _, _ ->
+                bookmarkViewmodel.deleteBookmark(bookmarkView)
+                finish()
+            }
+            .setNegativeButton("Cancel", null)
+            .create().show()
+    }
+
+
+    fun sharePlace(){
+        val bookmarkView = bookmarkDetail ?: return
+        var mapUrl = ""
+        if (bookmarkView.placeId == null) {
+            val location = URLEncoder.encode("${bookmarkView.latitude},"
+                    + "${bookmarkView.longitude}", "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" +
+                    "&destination=$location"
+        } else {
+            val name = URLEncoder.encode(bookmarkView.name, "utf-8")
+            mapUrl = "https://www.google.com/maps/dir/?api=1" +
+                    "&destination=$name&destination_place_id=" +
+                    "${bookmarkView.placeId}"
+        }
+        val sendIntent = Intent()
+        sendIntent.action = Intent.ACTION_SEND
+        sendIntent.putExtra(Intent.EXTRA_TEXT,
+            "Check out ${bookmarkView.name} at:\n$mapUrl")
+        sendIntent.putExtra(Intent.EXTRA_SUBJECT,
+            "Sharing ${bookmarkView.name}")
+        sendIntent.type = "text/plain"
+        startActivity(sendIntent)
+    }
+
+    private fun setupFab() {
+        binding.fab.setOnClickListener { sharePlace() }
+    }
 
 }

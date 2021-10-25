@@ -8,9 +8,14 @@ import com.example.placebook.model.Bookmark
 
 class BookmarkRepo(context: Context) {
 
+
+
     private val db = PlaceBookDatabase.getInstance(context)
     private val bookmarkDao : BookmarkDao = db.bookMarkDao()
 
+    fun deleteBookmark(bookmark: Bookmark){
+        bookmarkDao.deleteBookmark(bookmark)
+    }
 
     fun addBookmark(bookmark: Bookmark) : Long?{
         val newId = bookmarkDao.insertBookmark(bookmark)
@@ -39,6 +44,8 @@ class BookmarkRepo(context: Context) {
     fun getBookmark(bookmarkId: Long): Bookmark {
         return bookmarkDao.loadBookmark(bookmarkId)
     }
+
+
 
 
 }
