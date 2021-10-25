@@ -21,6 +21,7 @@ class MapsViewModel(application: Application) : AndroidViewModel(application) {
    private val bookmarkRepo : BookmarkRepo = BookmarkRepo(getApplication())
     private var bookmarks : LiveData<List<BookemarkerView>>? = null
 
+
     fun addBookmarkFromPlace(place: Place , image : Bitmap){
         val bookmark = bookmarkRepo.createBookmark()
         bookmark.placeId = place.id

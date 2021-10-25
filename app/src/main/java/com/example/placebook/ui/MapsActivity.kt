@@ -1,6 +1,7 @@
 package com.example.placebook.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -8,6 +9,7 @@ import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.app.ActivityCompat
@@ -17,6 +19,9 @@ import com.example.placebook.adapter.BookemarkInfoWindowAdapter
 import com.example.placebook.adapter.BookmarkAdapter
 import com.example.placebook.databinding.ActivityMapsBinding
 import com.example.placebook.viewmodel.MapsViewModel
+import com.google.android.gms.common.GooglePlayServicesIncorrectManifestValueException
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.*
 import com.google.android.libraries.places.api.Places
@@ -27,8 +32,11 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.google.android.libraries.places.api.model.Place
+import com.google.android.libraries.places.api.model.RectangularBounds
 import com.google.android.libraries.places.api.net.FetchPhotoRequest
 import com.google.android.libraries.places.api.net.FetchPlaceRequest
+import com.google.android.libraries.places.widget.Autocomplete
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -46,6 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         private const val REQUEST_LOCATION = 1
         private const val TAG = "MapsActivity"
          const val EXTRA_BOOKMARK_ID = "BOOKMARK_ID"
+        private const val AUTOCOMPLETE_REQUEST_CODE = 2
     }
 
 
@@ -97,6 +106,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         mMap.setOnInfoWindowClickListener {
             handleInfoWindowClicked(it)
+        }
+        binding.mainMapView.fab.setOnClickListener {
+            searchForCurrentlocation()
         }
 
 
@@ -348,6 +360,46 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
         location.latitude = bookmark.location.latitude
         location.longitude = bookmark.location.longitude
         updateMapToLocation(location)
+    }
+
+    private fun searchForCurrentlocation(){
+        val placeFiled = listOf(
+            Place.Field.ID,
+            Place.Field.NAME,
+            Place.Field.ADDRESS,
+            Place.Field.PHONE_NUMBER,
+            Place.Field.PHOTO_METADATAS,
+            Place.Field.LAT_LNG
+        )
+
+        val bound = RectangularBounds.newInstance(mMap.projection.visibleRegion.latLngBounds)
+        try{
+            val intent = Autocomplete.IntentBuilder(
+                AutocompleteActivityMode.OVERLAY , placeFiled
+            ).setLocationBias(bound)
+                .build(this)
+
+            startActivityForResult(intent , AUTOCOMPLETE_REQUEST_CODE)
+        } catch (e: GooglePlayServicesRepairableException){
+            Toast.makeText(this, "problems searching" , Toast.LENGTH_LONG).show()
+        }catch (e: GooglePlayServicesNotAvailableException) {
+            Toast.makeText(this, "Problems Searching. Google Play Not available", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when(requestCode){
+            AUTOCOMPLETE_REQUEST_CODE->
+                if (resultCode == Activity.RESULT_OK && data != null){
+                    val place = Autocomplete.getPlaceFromIntent(data)
+                    val location = Location("")
+                    location.latitude = place.latLng?.latitude ?:0.0
+                    location.longitude = place.latLng?.longitude ?:0.0
+                    updateMapToLocation(location)
+                    displayPoiPhotoStep(place)
+                }
+        }
     }
 
 }
