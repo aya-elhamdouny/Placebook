@@ -4,13 +4,14 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import com.example.placebook.R
 import com.example.placebook.databinding.ActivityBookmarkDetailBinding
 import com.example.placebook.viewmodel.BookmarkDetailViewModel
 
-class BookmarkDetail : AppCompatActivity() {
+class BookmarkDetail : AppCompatActivity() , PhotoOptionDialogFragment.photoOptionDialogListener{
 
     private lateinit var binding  : ActivityBookmarkDetailBinding
     private val bookmarkViewmodel by viewModels<BookmarkDetailViewModel>()
@@ -55,8 +56,12 @@ class BookmarkDetail : AppCompatActivity() {
             val image = bookmarkview.getImage(this)
             image?.let {
                 binding.imageViewPlace.setImageBitmap(image)
+
             }
 
+        }
+        binding.imageViewPlace.setOnClickListener {
+            replaceImage()
         }
     }
 
@@ -82,4 +87,19 @@ class BookmarkDetail : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
+
+    override fun onCaptureClick() {
+        Toast.makeText(this, "Camera Capture",
+            Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onPickClick() {
+        Toast.makeText(this, "Gallery Pick",
+            Toast.LENGTH_SHORT).show()
+    }
+
+    private fun replaceImage() {
+        val newFragment = PhotoOptionDialogFragment.newInstance(this)
+        newFragment?.show(supportFragmentManager, "photoOptionDialog")
+    }
 }
